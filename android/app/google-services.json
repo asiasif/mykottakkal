@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1065335217306",
+    "project_id": "mykottakkal-84008",
+    "storage_bucket": "mykottakkal-84008.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1065335217306:android:65df778c9b965fc6ec9323",
+        "android_client_info": {
+          "package_name": "com.kottakkal.mykottakkal"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1065335217306-evhad2gdio1vo2b6ssvdml2h0qdt3s6u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAZ2E1Z36OTCQa1RqB_nCSej6M5sti1t8Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1065335217306-evhad2gdio1vo2b6ssvdml2h0qdt3s6u.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
