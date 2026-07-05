@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
@@ -96,7 +97,11 @@ class _UserProfileSetupScreenState extends State<UserProfileSetupScreen> {
                   child: CircleAvatar(
                     radius: 50,
                     backgroundColor: Colors.grey[200],
-                    backgroundImage: _imageFile != null ? FileImage(File(_imageFile!.path)) : null,
+                    backgroundImage: _imageFile != null
+                        ? (kIsWeb
+                            ? NetworkImage(_imageFile!.path) as ImageProvider
+                            : FileImage(File(_imageFile!.path)) as ImageProvider)
+                        : null,
                     child: _imageFile == null
                         ? Icon(Icons.camera_alt, size: 40, color: Colors.grey[400])
                         : null,

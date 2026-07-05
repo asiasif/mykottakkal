@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:uuid/uuid.dart';
@@ -25,7 +26,7 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
   final List<String> _categories = ['Waste', 'Road', 'Street Light', 'Water Leak', 'Other'];
   
   // New Fields
-  File? _selectedImage;
+  XFile? _selectedImage;
   Position? _currentPosition;
   bool _isGettingLocation = false;
 
@@ -33,7 +34,7 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery); 
     if (pickedFile != null) {
-      setState(() => _selectedImage = File(pickedFile.path));
+      setState(() => _selectedImage = pickedFile);
     }
   }
 
@@ -143,7 +144,12 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
                               height: 80, width: 80, 
                               decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(8),
-                                  image: DecorationImage(image: FileImage(_selectedImage!), fit: BoxFit.cover)
+                                  image: DecorationImage(
+                                      image: kIsWeb
+                                          ? NetworkImage(_selectedImage!.path) as ImageProvider
+                                          : FileImage(File(_selectedImage!.path)) as ImageProvider,
+                                      fit: BoxFit.cover,
+                                  )
                               )
                             )
                           : Container(
@@ -211,7 +217,7 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
 
       String? imageUrl;
       if (_selectedImage != null) {
-          imageUrl = await CloudinaryService().uploadImage(XFile(_selectedImage!.path));
+          imageUrl = await CloudinaryService().uploadImage(_selectedImage!);
       }
 
       final issue = IssueModel(

@@ -115,8 +115,64 @@ class _UserHomeScreenState extends State<UserHomeScreen> with SingleTickerProvid
   }
 
   Widget _buildWelcomeSection() {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) {
+      return Container(
+        margin: EdgeInsets.all(20),
+        padding: EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: const Color(0xFF3E2723), 
+          gradient: const LinearGradient(
+            colors: [Color(0xFF2E7D32), Color(0xFF1B5E20)], 
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(color: const Color(0xFFD4AF37).withOpacity(0.3), blurRadius: 15, offset: const Offset(0, 8)), 
+          ],
+          border: Border.all(color: const Color(0xFFD4AF37), width: 1), 
+        ),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text("Ayurvedic Capital,", style: GoogleFonts.playfairDisplay(fontSize: 16, color: const Color(0xFFD4AF37), fontStyle: FontStyle.italic)), 
+                      Text("Welcome Guest", style: GoogleFonts.playfairDisplay(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.white)),
+                      const SizedBox(height: 8),
+                      const Text("Please log in to track bookings & earn points", style: TextStyle(color: Colors.white70)),
+                    ],
+                  ),
+                ),
+                Icon(Icons.temple_hindu, size: 60, color: const Color(0xFFD4AF37).withOpacity(0.9)),
+              ],
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const LoginScreen(role: 'user')), (route) => false);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFD4AF37),
+                  foregroundColor: const Color(0xFF3E2723),
+                  elevation: 0,
+                ),
+                child: const Text("Log In / Sign Up", style: TextStyle(fontWeight: FontWeight.bold)),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     return StreamBuilder<UserModel?>(
-      stream: DbService().getUser(FirebaseAuth.instance.currentUser!.uid),
+      stream: DbService().getUser(currentUser.uid),
       builder: (context, snapshot) {
         final userPoints = snapshot.data?.points ?? 0;
 
@@ -429,9 +485,14 @@ class _UserHomeScreenState extends State<UserHomeScreen> with SingleTickerProvid
                                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))
                                     ),
                                     onPressed: isBooking ? null : () async {
+                                        final authUser = FirebaseAuth.instance.currentUser;
+                                        if (authUser == null) {
+                                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Please log in to register for events!")));
+                                            return;
+                                        }
                                         setSheetState(() => isBooking = true);
                                         try {
-                                            final user = await DbService().getUser(FirebaseAuth.instance.currentUser!.uid).first;
+                                            final user = await DbService().getUser(authUser.uid).first;
                                             if (user != null) {
                                                 final booking = EventBookingModel(
                                                     id: Uuid().v4(),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
@@ -24,7 +25,7 @@ class _PostAdScreenState extends State<PostAdScreen> {
   String _category = 'Others';
   final List<String> _categories = ['Vehicles', 'Electronics', 'Furniture', 'Others'];
   
-  File? _image;
+  XFile? _image;
   bool _isLoading = false;
   bool _isEstimating = false; // Animation state
 
@@ -114,7 +115,7 @@ class _PostAdScreenState extends State<PostAdScreen> {
   Future<void> _pickImage() async {
     final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
     if (picked != null) {
-      setState(() => _image = File(picked.path));
+      setState(() => _image = picked);
     }
   }
 
@@ -128,7 +129,7 @@ class _PostAdScreenState extends State<PostAdScreen> {
 
     try {
       final user = FirebaseAuth.instance.currentUser!;
-      final imageUrl = await CloudinaryService().uploadImage(XFile(_image!.path));
+      final imageUrl = await CloudinaryService().uploadImage(_image!);
       
       if (imageUrl == null) throw "Image upload failed";
 
@@ -177,7 +178,14 @@ class _PostAdScreenState extends State<PostAdScreen> {
                   color: Colors.grey[100],
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: Colors.grey[300]!),
-                  image: _image != null ? DecorationImage(image: FileImage(_image!), fit: BoxFit.cover) : null,
+                  image: _image != null
+                      ? DecorationImage(
+                          image: kIsWeb
+                              ? NetworkImage(_image!.path) as ImageProvider
+                              : FileImage(File(_image!.path)) as ImageProvider,
+                          fit: BoxFit.cover,
+                        )
+                      : null,
                 ),
                 child: _image == null 
                     ? Column(

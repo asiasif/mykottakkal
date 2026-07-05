@@ -17,12 +17,15 @@ import 'package:mykottakkal/views/email_login_screen.dart';
 import 'package:mykottakkal/views/email_signup_screen.dart';
 import 'package:mykottakkal/views/worker/worker_dashboard_screen.dart';
 import 'package:mykottakkal/services/theme_service.dart';
+import 'package:mykottakkal/firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
     print("DEBUG: Starting Firebase Initialization...");
-    await Firebase.initializeApp();
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
     print("DEBUG: Firebase Initialized Successfully!");
   } catch (e) {
     print("DEBUG: Firebase Initialization Failed: $e");

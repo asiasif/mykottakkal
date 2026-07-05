@@ -1,0 +1,13 @@
+.dart_tool/
+build/
+android/
+ios/
+windows/
+macos/
+linux/
+.idea/
+*.pdf
+*.zip
+*.tar.gz
+build_log*.txt
+deps.txt

@@ -55,12 +55,20 @@ class _ShopDetailsScreenState extends State<ShopDetailsScreen> {
   void _showCheckoutSheet() {
     if (_cart.isEmpty) return;
 
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please log in to place orders!")),
+      );
+      return;
+    }
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => StreamBuilder<UserModel?>(
-        stream: DbService().getUser(FirebaseAuth.instance.currentUser!.uid),
+        stream: DbService().getUser(currentUser.uid),
         builder: (context, snapshot) {
             final userPoints = snapshot.data?.points ?? 0;
             return CheckoutSheet(
