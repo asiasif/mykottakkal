@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:mykottakkal/services/auth_service.dart';
@@ -51,9 +52,11 @@ class _UserHomeScreenState extends State<UserHomeScreen> with SingleTickerProvid
     _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 1000));
     _controller.forward();
     
-    // Initialize Notifications
-    NotificationHelper.init();
-    NotificationHelper.monitorBookings();
+    // Initialize Notifications on non-web platforms
+    if (!kIsWeb) {
+      NotificationHelper.init();
+      NotificationHelper.monitorBookings();
+    }
   }
   @override
   void dispose() {
