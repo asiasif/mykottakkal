@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
@@ -30,13 +30,18 @@ class _WorkerRegistrationScreenState extends State<WorkerRegistrationScreen> {
   ];
 
   XFile? _imageFile;
+  Uint8List? _imageBytes;
   bool _isLoading = false;
 
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
     if (image != null) {
-      setState(() => _imageFile = image);
+      final bytes = await image.readAsBytes();
+      setState(() {
+        _imageFile = image;
+        _imageBytes = bytes;
+      });
     }
   }
 
@@ -92,7 +97,7 @@ class _WorkerRegistrationScreenState extends State<WorkerRegistrationScreen> {
                   child: CircleAvatar(
                     radius: 50,
                     backgroundColor: Colors.grey[200],
-                    backgroundImage: _imageFile != null ? FileImage(File(_imageFile!.path)) : null,
+                    backgroundImage: _imageBytes != null ? MemoryImage(_imageBytes!) : null,
                     child: _imageFile == null
                         ? Icon(Icons.camera_alt, size: 40, color: Colors.grey[400])
                         : null,

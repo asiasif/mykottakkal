@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
-import 'dart:io';
+import 'dart:typed_data';
 import 'package:mykottakkal/services/cloudinary_service.dart';
 import 'package:mykottakkal/models/tourism_model.dart';
 import 'package:mykottakkal/services/db_service.dart';
@@ -83,12 +83,19 @@ class _AddTourismPlaceScreenState extends State<AddTourismPlaceScreen> {
   final _nameController = TextEditingController();
   final _locController = TextEditingController();
   final _descController = TextEditingController();
-  File? _image;
+  XFile? _image;
+  Uint8List? _imageBytes;
   bool _isLoading = false;
 
   Future<void> _pickImage() async {
     final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
-    if (picked != null) setState(() => _image = File(picked.path));
+    if (picked != null) {
+      final bytes = await picked.readAsBytes();
+      setState(() {
+        _image = picked;
+        _imageBytes = bytes;
+      });
+    }
   }
 
   Future<void> _submit() async {
@@ -96,7 +103,7 @@ class _AddTourismPlaceScreenState extends State<AddTourismPlaceScreen> {
      setState(() => _isLoading = true);
      
      try {
-       final url = await CloudinaryService().uploadImage(XFile(_image!.path));
+       final url = await CloudinaryService().uploadImage(_image!);
        if (url != null) {
           final place = TourismModel(
             id: Uuid().v4(),
@@ -128,8 +135,8 @@ class _AddTourismPlaceScreenState extends State<AddTourismPlaceScreen> {
               child: Container(
                 height: 200,
                 width: double.infinity,
-                decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(12), image: _image != null ? DecorationImage(image: FileImage(_image!), fit: BoxFit.cover) : null),
-                child: _image == null ? Icon(Icons.add_a_photo, size: 50, color: Colors.grey) : null,
+                decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(12), image: _imageBytes != null ? DecorationImage(image: MemoryImage(_imageBytes!), fit: BoxFit.cover) : null),
+                child: _imageBytes == null ? Icon(Icons.add_a_photo, size: 50, color: Colors.grey) : null,
               ),
             ),
             SizedBox(height: 16),

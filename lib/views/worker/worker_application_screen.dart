@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
@@ -35,7 +35,9 @@ class _WorkerApplicationScreenState extends State<WorkerApplicationScreen> {
   ];
 
   XFile? _profileImage;
+  Uint8List? _profileBytes;
   XFile? _certificateImage;
+  Uint8List? _certificateBytes;
   bool _isLoading = false;
   Position? _currentPosition; // Store location
   bool _isGettingLocation = false;
@@ -71,11 +73,14 @@ class _WorkerApplicationScreenState extends State<WorkerApplicationScreen> {
   Future<void> _pickImage(bool isProfile) async {
     final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
+      final bytes = await pickedFile.readAsBytes();
       setState(() {
         if (isProfile) {
           _profileImage = pickedFile;
+          _profileBytes = bytes;
         } else {
           _certificateImage = pickedFile;
+          _certificateBytes = bytes;
         }
       });
     }
@@ -163,7 +168,7 @@ class _WorkerApplicationScreenState extends State<WorkerApplicationScreen> {
                   child: CircleAvatar(
                     radius: 50,
                     backgroundColor: Colors.grey[200],
-                    backgroundImage: _profileImage != null ? FileImage(File(_profileImage!.path)) : null,
+                    backgroundImage: _profileBytes != null ? MemoryImage(_profileBytes!) : null,
                     child: _profileImage == null ? Icon(Icons.add_a_photo, size: 40, color: Colors.grey) : null,
                   ),
                 ),
@@ -251,8 +256,8 @@ class _WorkerApplicationScreenState extends State<WorkerApplicationScreen> {
                     border: Border.all(color: Colors.grey[300]!),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                   child: _certificateImage != null 
-                    ? ClipRRect(borderRadius: BorderRadius.circular(12), child: Image.file(File(_certificateImage!.path), fit: BoxFit.cover))
+                    child: _certificateBytes != null 
+                    ? ClipRRect(borderRadius: BorderRadius.circular(12), child: Image.memory(_certificateBytes!, fit: BoxFit.cover))
                     : Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [

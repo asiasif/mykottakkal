@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
-import 'dart:io';
+import 'dart:typed_data';
 import 'package:mykottakkal/services/cloudinary_service.dart';
 import 'package:mykottakkal/models/rental_model.dart';
 import 'package:mykottakkal/services/db_service.dart';
@@ -25,12 +25,19 @@ class _PostRentalScreenState extends State<PostRentalScreen> {
   String _category = 'House';
   final List<String> _categories = ['House', 'Shop', 'Vehicle', 'Equipment'];
   
-  File? _image;
+  XFile? _image;
+  Uint8List? _imageBytes;
   bool _isLoading = false;
 
   Future<void> _pickImage() async {
     final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
-    if (picked != null) setState(() => _image = File(picked.path));
+    if (picked != null) {
+      final bytes = await picked.readAsBytes();
+      setState(() {
+        _image = picked;
+        _imageBytes = bytes;
+      });
+    }
   }
 
   Future<void> _submit() async {
@@ -43,7 +50,7 @@ class _PostRentalScreenState extends State<PostRentalScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final url = await CloudinaryService().uploadImage(XFile(_image!.path));
+      final url = await CloudinaryService().uploadImage(_image!);
       if (url == null) throw "Image upload failed";
 
       final rental = RentalModel(
@@ -89,7 +96,7 @@ class _PostRentalScreenState extends State<PostRentalScreen> {
                     color: Colors.grey[100], 
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: Colors.grey[300]!),
-                    image: _image != null ? DecorationImage(image: FileImage(_image!), fit: BoxFit.cover) : null
+                    image: _imageBytes != null ? DecorationImage(image: MemoryImage(_imageBytes!), fit: BoxFit.cover) : null
                   ),
                   child: _image == null 
                       ? Column(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.add_a_photo, size: 40, color: Colors.grey), Text("Add Photo", style: TextStyle(color: Colors.grey))]) 

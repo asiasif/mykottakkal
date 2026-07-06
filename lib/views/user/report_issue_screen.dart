@@ -6,7 +6,7 @@ import 'package:uuid/uuid.dart';
 import 'package:image_picker/image_picker.dart'; // Import
 import 'package:geolocator/geolocator.dart'; // Import
 import 'package:mykottakkal/services/cloudinary_service.dart'; // Import
-import 'dart:io';
+import 'dart:typed_data';
 import 'package:mykottakkal/models/issue_model.dart';
 import 'package:mykottakkal/services/db_service.dart';
 
@@ -27,6 +27,7 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
   
   // New Fields
   XFile? _selectedImage;
+  Uint8List? _imageBytes;
   Position? _currentPosition;
   bool _isGettingLocation = false;
 
@@ -34,7 +35,11 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery); 
     if (pickedFile != null) {
-      setState(() => _selectedImage = pickedFile);
+      final bytes = await pickedFile.readAsBytes();
+      setState(() {
+        _selectedImage = pickedFile;
+        _imageBytes = bytes;
+      });
     }
   }
 
@@ -145,12 +150,10 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
                               decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(8),
                                   image: DecorationImage(
-                                      image: kIsWeb
-                                          ? NetworkImage(_selectedImage!.path) as ImageProvider
-                                          : FileImage(File(_selectedImage!.path)) as ImageProvider,
+                                      image: MemoryImage(_imageBytes!),
                                       fit: BoxFit.cover,
-                                  )
-                              )
+                                  ),
+                              ),
                             )
                           : Container(
                               height: 80, width: 80,

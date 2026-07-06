@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
-import 'dart:io';
+import 'dart:typed_data';
 import 'package:mykottakkal/services/cloudinary_service.dart';
 import 'package:mykottakkal/models/ad_model.dart';
 import 'package:mykottakkal/services/db_service.dart';
@@ -26,6 +26,7 @@ class _PostAdScreenState extends State<PostAdScreen> {
   final List<String> _categories = ['Vehicles', 'Electronics', 'Furniture', 'Others'];
   
   XFile? _image;
+  Uint8List? _imageBytes;
   bool _isLoading = false;
   bool _isEstimating = false; // Animation state
 
@@ -115,7 +116,11 @@ class _PostAdScreenState extends State<PostAdScreen> {
   Future<void> _pickImage() async {
     final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
     if (picked != null) {
-      setState(() => _image = picked);
+      final bytes = await picked.readAsBytes();
+      setState(() {
+        _image = picked;
+        _imageBytes = bytes;
+      });
     }
   }
 
@@ -179,11 +184,9 @@ class _PostAdScreenState extends State<PostAdScreen> {
                   color: Colors.grey[100],
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: Colors.grey[300]!),
-                  image: _image != null
+                  image: _imageBytes != null
                       ? DecorationImage(
-                          image: kIsWeb
-                              ? NetworkImage(_image!.path) as ImageProvider
-                              : FileImage(File(_image!.path)) as ImageProvider,
+                          image: MemoryImage(_imageBytes!),
                           fit: BoxFit.cover,
                         )
                       : null,

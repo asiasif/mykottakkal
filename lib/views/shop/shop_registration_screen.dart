@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
@@ -38,8 +38,11 @@ class _ShopRegistrationScreenState extends State<ShopRegistrationScreen> {
   
   bool _deliveryAvailable = false;
   XFile? _shopImage; // Board / Front
+  Uint8List? _shopBytes;
   XFile? _logoImage; // Logo
+  Uint8List? _logoBytes;
   XFile? _licenseImage;
+  Uint8List? _licenseBytes;
   bool _isLoading = false;
 
   final CloudinaryService _cloudinaryService = CloudinaryService();
@@ -48,11 +51,19 @@ class _ShopRegistrationScreenState extends State<ShopRegistrationScreen> {
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
     if (image != null) {
+      final bytes = await image.readAsBytes();
       if (mounted) {
         setState(() {
-          if (type == 1) _shopImage = image;
-          else if (type == 2) _logoImage = image;
-          else if (type == 3) _licenseImage = image;
+          if (type == 1) {
+            _shopImage = image;
+            _shopBytes = bytes;
+          } else if (type == 2) {
+            _logoImage = image;
+            _logoBytes = bytes;
+          } else if (type == 3) {
+            _licenseImage = image;
+            _licenseBytes = bytes;
+          }
         });
       }
     }
@@ -174,9 +185,9 @@ class _ShopRegistrationScreenState extends State<ShopRegistrationScreen> {
               SizedBox(height: 24),
               _buildSectionHeader("Documents & Images"),
               
-              _buildImagePicker("Shop Board / Front Image *", _shopImage, 1),
-              _buildImagePicker("Shop Logo (Optional)", _logoImage, 2),
-              _buildImagePicker("License / Id Proof (Required)", _licenseImage, 3), // Emphasized License
+              _buildImagePicker("Shop Board / Front Image *", _shopImage, _shopBytes, 1),
+              _buildImagePicker("Shop Logo (Optional)", _logoImage, _logoBytes, 2),
+              _buildImagePicker("License / Id Proof (Required)", _licenseImage, _licenseBytes, 3), // Emphasized License
 
               SizedBox(height: 32),
               SizedBox(
@@ -231,7 +242,7 @@ class _ShopRegistrationScreenState extends State<ShopRegistrationScreen> {
     );
   }
 
-  Widget _buildImagePicker(String label, XFile? file, int type) {
+  Widget _buildImagePicker(String label, XFile? file, Uint8List? bytes, int type) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -246,7 +257,7 @@ class _ShopRegistrationScreenState extends State<ShopRegistrationScreen> {
               color: Colors.grey[200],
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: Colors.grey[400]!),
-              image: file != null ? DecorationImage(image: FileImage(File(file.path)), fit: BoxFit.cover) : null,
+              image: bytes != null ? DecorationImage(image: MemoryImage(bytes), fit: BoxFit.cover) : null,
             ),
             child: file == null 
               ? Center(child: Column(

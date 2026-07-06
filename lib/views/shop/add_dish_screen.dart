@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -25,6 +25,7 @@ class _AddDishScreenState extends State<AddDishScreen> {
   final TextEditingController _priceController = TextEditingController();
   String _selectedCategory = ''; // Initialize empty, set in initState
   XFile? _selectedImage;
+  Uint8List? _imageBytes;
   bool _isLoading = false;
   
   // Food Rescue Logic
@@ -62,8 +63,10 @@ class _AddDishScreenState extends State<AddDishScreen> {
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
     if (image != null) {
+      final bytes = await image.readAsBytes();
       setState(() {
         _selectedImage = image;
+        _imageBytes = bytes;
       });
     }
   }
@@ -140,9 +143,9 @@ class _AddDishScreenState extends State<AddDishScreen> {
                     color: Colors.grey[200],
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: Colors.grey),
-                    image: _selectedImage != null
+                    image: _imageBytes != null
                         ? DecorationImage(
-                            image: FileImage(File(_selectedImage!.path)),
+                            image: MemoryImage(_imageBytes!),
                             fit: BoxFit.cover,
                           )
                         : null,
