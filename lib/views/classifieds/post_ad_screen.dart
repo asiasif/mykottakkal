@@ -128,7 +128,8 @@ class _PostAdScreenState extends State<PostAdScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final user = FirebaseAuth.instance.currentUser!;
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) throw "User not logged in";
       final imageUrl = await CloudinaryService().uploadImage(_image!);
       
       if (imageUrl == null) throw "Image upload failed";

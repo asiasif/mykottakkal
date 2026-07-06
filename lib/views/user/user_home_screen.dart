@@ -28,6 +28,8 @@ import 'package:mykottakkal/views/ayurveda/ayurveda_hub_screen.dart';
 import 'package:mykottakkal/views/sports/football_bulletin_screen.dart';
 import 'package:mykottakkal/views/user/my_reports_screen.dart'; // Import
 import 'package:mykottakkal/models/user_model.dart'; // Import
+import 'package:mykottakkal/views/user/daily_rates_screen.dart';
+import 'package:mykottakkal/views/user/organic_bazaar_screen.dart';
 import 'package:mykottakkal/models/event_model.dart'; // Import
 import 'package:intl/intl.dart';
 import 'package:mykottakkal/models/event_booking_model.dart'; // Import
@@ -319,6 +321,8 @@ class _UserHomeScreenState extends State<UserHomeScreen> with SingleTickerProvid
       {'name': 'Helpline', 'icon': Icons.emergency, 'color': Colors.red[900]},
       {'name': 'Ayurveda\nHub', 'icon': Icons.spa, 'color': const Color(0xFF2E7D32)},
       {'name': 'Football\nBulletin', 'icon': Icons.sports_soccer, 'color': const Color(0xFF1B5E20)},
+      {'name': 'Market\nRates', 'icon': Icons.trending_up, 'color': Colors.orange[850]!},
+      {'name': 'Farmers\nBazaar', 'icon': Icons.eco, 'color': Colors.green[800]!},
     ];
 
     return Padding(
@@ -606,6 +610,10 @@ class _UserHomeScreenState extends State<UserHomeScreen> with SingleTickerProvid
                Navigator.push(context, MaterialPageRoute(builder: (_) => const AyurvedaHubScreen()));
             } else if (item['name'] == 'Football\nBulletin') {
                Navigator.push(context, MaterialPageRoute(builder: (_) => const FootballBulletinScreen()));
+            } else if (item['name'] == 'Market\nRates') {
+               Navigator.push(context, MaterialPageRoute(builder: (_) => const DailyRatesScreen()));
+            } else if (item['name'] == 'Farmers\nBazaar') {
+               Navigator.push(context, MaterialPageRoute(builder: (_) => const OrganicBazaarScreen()));
             }
         },
         child: Container(

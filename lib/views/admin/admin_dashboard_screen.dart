@@ -22,6 +22,8 @@ import 'package:mykottakkal/views/admin/admin_manage_ads.dart'; // Import Classi
 import 'package:mykottakkal/views/admin/admin_manage_bus.dart'; // Import Bus
 import 'package:mykottakkal/views/admin/admin_manage_tourism.dart'; // Import Tourism
 import 'package:mykottakkal/views/admin/admin_manage_emergency.dart'; // Import Emergency
+import 'package:mykottakkal/views/admin/admin_manage_rates_screen.dart';
+import 'package:mykottakkal/views/admin/admin_manage_bazaar_screen.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({super.key});
@@ -200,6 +202,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                                   _buildManageButton("Bus Timings", Icons.directions_bus, Colors.indigo, () => Navigator.push(context, MaterialPageRoute(builder: (_) => AdminManageBusScreen()))),
                                   _buildManageButton("Tourism", Icons.camera_alt, Colors.teal, () => Navigator.push(context, MaterialPageRoute(builder: (_) => AdminManageTourismScreen()))),
                                   _buildManageButton("Helpline", Icons.emergency, Colors.red[800]!, () => Navigator.push(context, MaterialPageRoute(builder: (_) => AdminManageEmergencyScreen()))),
+                                  _buildManageButton("Market Rates", Icons.trending_up, Colors.orange[850]!, () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminManageRatesScreen()))),
+                                  _buildManageButton("Farmers Bazaar", Icons.eco, Colors.green[800]!, () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminManageBazaarScreen()))),
                                 ],
                               ),
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:mykottakkal/services/auth_service.dart';
 
 class EmailLoginScreen extends StatefulWidget {
@@ -21,7 +22,8 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
     
     // Pass role to signIn (if implementation supports it or just sign in)
     // For now assuming signInWithEmail handles auth, and we route based on widget.role or fetched user doc
-    final user = await AuthService().signInWithEmail(_emailController.text.trim(), _passwordController.text.trim());
+    final authService = Provider.of<AuthService>(context, listen: false);
+    final user = await authService.signInWithEmail(_emailController.text.trim(), _passwordController.text.trim());
     
     setState(() => isLoading = false);
 
@@ -31,9 +33,23 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
       } else if (widget.role == 'merchant') {
          Navigator.pushReplacementNamed(context, '/merchant-dashboard');
       } else if (widget.role == 'worker') {
-         Navigator.pushReplacementNamed(context, '/worker-dashboard');
+         bool exists = await authService.checkWorkerExists(user.uid);
+         if (mounted) {
+           if (exists) {
+             Navigator.pushReplacementNamed(context, '/worker-dashboard');
+           } else {
+             Navigator.pushReplacementNamed(context, '/worker-registration');
+           }
+         }
       } else {
-         Navigator.pushReplacementNamed(context, '/user-home');
+         bool exists = await authService.checkUserExists(user.uid);
+         if (mounted) {
+           if (exists) {
+             Navigator.pushReplacementNamed(context, '/user-home');
+           } else {
+             Navigator.pushReplacementNamed(context, '/user-profile-setup');
+           }
+         }
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Login Failed. Check credentials.")));

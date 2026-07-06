@@ -25,6 +25,9 @@ import 'package:mykottakkal/models/wellness_center_model.dart';
 import 'package:mykottakkal/models/wellness_booking_model.dart';
 import 'package:mykottakkal/models/football_match_model.dart';
 import 'package:mykottakkal/models/bulletin_notice_model.dart';
+import 'package:mykottakkal/models/daily_rates_model.dart';
+import 'package:mykottakkal/models/agro_price_model.dart';
+import 'package:mykottakkal/models/organic_harvest_model.dart';
 
 class DbService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
@@ -955,6 +958,80 @@ class DbService {
     for (var notice in notices) {
       await _db.collection('bulletin_notices').doc(notice.id).set(notice.toMap());
     }
+  }
+
+  // --- Daily Rates Operations ---
+  Stream<DailyRatesModel?> getDailyRates() {
+    return _db.collection('settings').doc('daily_rates').snapshots().map((doc) {
+      if (!doc.exists) {
+        return null;
+      }
+      return DailyRatesModel.fromMap(doc.data()!);
+    });
+  }
+
+  Future<void> updateDailyRates(DailyRatesModel rates) async {
+    await _db.collection('settings').doc('daily_rates').set(rates.toMap());
+  }
+
+  // --- Agro Price Index Operations ---
+  Stream<List<AgroPriceModel>> getAgroPrices() {
+    return _db.collection('agro_prices').snapshots().map((snapshot) {
+      if (snapshot.docs.isEmpty) {
+        _seedAgroPrices();
+        return [];
+      }
+      return snapshot.docs.map((doc) => AgroPriceModel.fromMap(doc.data())).toList();
+    });
+  }
+
+  Future<void> updateAgroPrice(AgroPriceModel price) async {
+    await _db.collection('agro_prices').doc(price.id).set(price.toMap());
+  }
+
+  Future<void> _seedAgroPrices() async {
+    final list = [
+      AgroPriceModel(id: 'coconut', name: 'Coconut (100 nos)', price: 1400, unit: 'bundle', trend: 'stable', updatedAt: DateTime.now()),
+      AgroPriceModel(id: 'copra', name: 'Copra (1 Kg)', price: 115, unit: 'kg', trend: 'up', updatedAt: DateTime.now()),
+      AgroPriceModel(id: 'rubber_rss4', name: 'Rubber RSS 4 (1 Kg)', price: 180, unit: 'kg', trend: 'down', updatedAt: DateTime.now()),
+      AgroPriceModel(id: 'pepper', name: 'Black Pepper (1 Kg)', price: 620, unit: 'kg', trend: 'up', updatedAt: DateTime.now()),
+      AgroPriceModel(id: 'arecanut', name: 'Areca nut / Adakka (1 Kg)', price: 420, unit: 'kg', trend: 'stable', updatedAt: DateTime.now()),
+    ];
+    for (var item in list) {
+      await _db.collection('agro_prices').doc(item.id).set(item.toMap());
+    }
+  }
+
+  // --- Organic Harvest Bazaar Operations ---
+  Stream<List<OrganicHarvestModel>> getOrganicHarvests() {
+    return _db.collection('organic_harvests').snapshots().map((snapshot) {
+      final items = snapshot.docs.map((doc) => OrganicHarvestModel.fromMap(doc.data())).toList();
+      items.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+      return items;
+    });
+  }
+
+  Stream<List<OrganicHarvestModel>> getApprovedOrganicHarvests() {
+    return _db.collection('organic_harvests')
+        .where('isApproved', isEqualTo: true)
+        .snapshots()
+        .map((snapshot) {
+          final items = snapshot.docs.map((doc) => OrganicHarvestModel.fromMap(doc.data())).toList();
+          items.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+          return items;
+        });
+  }
+
+  Future<void> postOrganicHarvest(OrganicHarvestModel harvest) async {
+    await _db.collection('organic_harvests').doc(harvest.id).set(harvest.toMap());
+  }
+
+  Future<void> approveOrganicHarvest(String id) async {
+    await _db.collection('organic_harvests').doc(id).update({'isApproved': true});
+  }
+
+  Future<void> deleteOrganicHarvest(String id) async {
+    await _db.collection('organic_harvests').doc(id).delete();
   }
 }
 

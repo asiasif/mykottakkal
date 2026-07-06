@@ -29,9 +29,25 @@ class _LoginScreenState extends State<LoginScreen> {
         } else if (widget.role == 'merchant') {
            Navigator.pushReplacementNamed(context, '/merchant-dashboard');
         } else if (widget.role == 'worker') {
-           Navigator.pushReplacementNamed(context, '/worker-dashboard');
+           final authService = Provider.of<AuthService>(context, listen: false);
+           bool exists = await authService.checkWorkerExists(user.uid);
+           if (mounted) {
+             if (exists) {
+               Navigator.pushReplacementNamed(context, '/worker-dashboard');
+             } else {
+               Navigator.pushReplacementNamed(context, '/worker-registration');
+             }
+           }
         } else {
-           Navigator.pushReplacementNamed(context, '/user-home');
+           final authService = Provider.of<AuthService>(context, listen: false);
+           bool exists = await authService.checkUserExists(user.uid);
+           if (mounted) {
+             if (exists) {
+               Navigator.pushReplacementNamed(context, '/user-home');
+             } else {
+               Navigator.pushReplacementNamed(context, '/user-profile-setup');
+             }
+           }
         }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Google Sign-In Failed or Cancelled.")));
@@ -164,26 +180,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
 
-                        if (widget.role == 'user') ...[
-                          SizedBox(height: 16),
-                          Row(
-                            children: [
-                              Expanded(child: Divider(color: Colors.grey[400])),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                                child: Text("OR", style: TextStyle(color: Colors.grey[600], fontSize: 12)),
-                              ),
-                              Expanded(child: Divider(color: Colors.grey[400])),
-                            ],
-                          ),
-                          SizedBox(height: 16),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => LandingScreen()));
-                            },
-                             child: Text("Continue as Guest", style: TextStyle(color: Color(0xFF2E7D32), fontWeight: FontWeight.bold)),
-                          ),
-                        ]
+
                       ],
                     ),
                   ),
