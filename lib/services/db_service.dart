@@ -20,6 +20,11 @@ import 'package:mykottakkal/models/tourism_model.dart'; // Import TourismModel
 import 'package:mykottakkal/models/rental_model.dart'; // Import RentalModel
 import 'package:mykottakkal/models/emergency_model.dart'; // Import EmergencyModel
 import 'package:mykottakkal/models/job_application_model.dart'; // Import JobApplicationModel
+import 'package:mykottakkal/models/herb_model.dart';
+import 'package:mykottakkal/models/wellness_center_model.dart';
+import 'package:mykottakkal/models/wellness_booking_model.dart';
+import 'package:mykottakkal/models/football_match_model.dart';
+import 'package:mykottakkal/models/bulletin_notice_model.dart';
 
 class DbService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
@@ -698,6 +703,258 @@ class DbService {
             apps.sort((a, b) => b.appliedDate.compareTo(a.appliedDate)); // Client-side Sort
             return apps;
         });
+  }
+
+  // --- Ayurvedic Wellness Hub ---
+
+  Stream<List<HerbModel>> getHerbs() {
+    return _db.collection('herbs').snapshots().map((snapshot) {
+      if (snapshot.docs.isEmpty) {
+        _seedHerbs();
+        return [];
+      }
+      return snapshot.docs.map((doc) => HerbModel.fromMap(doc.data())).toList();
+    });
+  }
+
+  Future<void> _seedHerbs() async {
+    final herbs = [
+      HerbModel(
+        id: 'herb_1',
+        name: 'Tulsi',
+        localName: 'വിശുദ്ധ തുളസി (Krishna Tulsi)',
+        scientificName: 'Ocimum tenuiflorum',
+        benefits: '• Boosts respiratory health and relieves cough.\n• Helps reduce stress and lower blood pressure.\n• High in antioxidants, supporting overall immunity.',
+        howToUse: 'Boil fresh Tulsi leaves with black pepper and ginger in water to make a healing herbal tea. Drink twice daily.',
+        imageUrl: 'https://images.unsplash.com/photo-1615485290382-441e4d049cb5?auto=format&fit=crop&q=80&w=400',
+      ),
+      HerbModel(
+        id: 'herb_2',
+        name: 'Neem',
+        localName: 'ആര്യവേപ്പ് (Aryaveppu)',
+        scientificName: 'Azadirachta indica',
+        benefits: '• Highly effective blood purifier and anti-inflammatory agent.\n• Cures skin conditions like acne, eczema, and rashes.\n• Supports oral health and hygiene.',
+        howToUse: 'Grind neem leaves into a paste and apply directly to skin issues, or consume 1-2 fresh leaves on an empty stomach for detoxification.',
+        imageUrl: 'https://images.unsplash.com/photo-1600411832986-5a44d18c5a14?auto=format&fit=crop&q=80&w=400',
+      ),
+      HerbModel(
+        id: 'herb_3',
+        name: 'Ashwagandha',
+        localName: 'അമുക്കുരം (Amukkuram)',
+        scientificName: 'Withania somnifera',
+        benefits: '• Promotes strength, vitality, and muscle recovery.\n• Dramatically lowers cortisol (stress hormone) levels.\n• Enhances sleep quality and fights fatigue.',
+        howToUse: 'Mix 1/2 teaspoon of Ashwagandha powder in warm milk or water before bedtime.',
+        imageUrl: 'https://images.unsplash.com/photo-1599058917212-d750089bc07e?auto=format&fit=crop&q=80&w=400',
+      ),
+      HerbModel(
+        id: 'herb_4',
+        name: 'Turmeric',
+        localName: 'മഞ്ഞൾ (Manjal)',
+        scientificName: 'Curcuma longa',
+        benefits: '• Strong natural painkiller and anti-septic.\n• Supports healthy joint function and reduces swelling.\n• Enhances skin complexion and digestive power.',
+        howToUse: 'Consume daily with food, or mix with milk and black pepper to make anti-inflammatory Golden Milk.',
+        imageUrl: 'https://images.unsplash.com/photo-1615485290382-441e4d049cb5?auto=format&fit=crop&q=80&w=400',
+      ),
+    ];
+    for (var herb in herbs) {
+      await _db.collection('herbs').doc(herb.id).set(herb.toMap());
+    }
+  }
+
+  Stream<List<WellnessCenterModel>> getWellnessCenters() {
+    return _db.collection('wellness_centers').snapshots().map((snapshot) {
+      if (snapshot.docs.isEmpty) {
+        _seedWellnessCenters();
+        return [];
+      }
+      return snapshot.docs.map((doc) => WellnessCenterModel.fromMap(doc.data())).toList();
+    });
+  }
+
+  Future<void> _seedWellnessCenters() async {
+    final centers = [
+      WellnessCenterModel(
+        id: 'center_1',
+        name: 'Kottakkal Arya Vaidya Sala',
+        imageUrl: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&q=80&w=600',
+        address: 'Kottakkal Junction, Malappuram, Kerala 676503',
+        phone: '+91 483 280 8000',
+        description: 'The historic and premier institution pioneering authentic Ayurvedic treatments, manufacturing medicines, and offering specialized therapies for over a century.',
+        rating: 4.8,
+        googleMapLink: 'https://maps.google.com/?q=Arya+Vaidya+Sala+Kottakkal',
+      ),
+      WellnessCenterModel(
+        id: 'center_2',
+        name: 'Ayurvihar Panchakarma Center',
+        imageUrl: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&q=80&w=600',
+        address: 'Changuvetty, Kottakkal, Kerala 676501',
+        phone: '+91 483 274 3456',
+        description: 'Specializes in intensive detoxification Panchakarma treatments, rejuvenation massages (Abhyangam), and customized herbal steam baths managed by certified Vaidyas.',
+        rating: 4.6,
+        googleMapLink: 'https://maps.google.com/?q=Changuvetty+Kottakkal',
+      ),
+      WellnessCenterModel(
+        id: 'center_3',
+        name: 'Kailas Ayurvedic Clinic',
+        imageUrl: 'https://images.unsplash.com/photo-1627672360099-083a88b38a85?auto=format&fit=crop&q=80&w=600',
+        address: 'Puttur Road, Kottakkal, Kerala 676503',
+        phone: '+91 94471 23456',
+        description: 'A quiet, premium clinic focusing on stress management, chronic pain relief, spine care, and lifestyle coaching using classical Ayurvedic formulations.',
+        rating: 4.7,
+        googleMapLink: 'https://maps.google.com/?q=Kottakkal',
+      ),
+    ];
+    for (var center in centers) {
+      await _db.collection('wellness_centers').doc(center.id).set(center.toMap());
+    }
+  }
+
+  Future<void> bookWellnessCenter(WellnessBookingModel booking) async {
+    await _db.collection('wellness_bookings').doc(booking.id).set(booking.toMap());
+  }
+
+  Stream<List<WellnessBookingModel>> getWellnessBookingsForUser(String userId) {
+    return _db
+        .collection('wellness_bookings')
+        .where('userId', isEqualTo: userId)
+        .snapshots()
+        .map((snapshot) {
+          final bookings = snapshot.docs
+              .map((doc) => WellnessBookingModel.fromMap(doc.data()))
+              .toList();
+          bookings.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+          return bookings;
+        });
+  }
+
+  Future<void> cancelWellnessBooking(String bookingId) async {
+    await _db.collection('wellness_bookings').doc(bookingId).update({'status': 'Cancelled'});
+  }
+
+  // --- Malappuram Sevens Football & Bulletin Notices ---
+
+  Stream<List<FootballMatchModel>> getFootballMatches() {
+    return _db.collection('football_matches').snapshots().map((snapshot) {
+      if (snapshot.docs.isEmpty) {
+        _seedFootballMatches();
+        return [];
+      }
+      final matches = snapshot.docs.map((doc) => FootballMatchModel.fromMap(doc.data())).toList();
+      matches.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+      return matches;
+    });
+  }
+
+  Future<void> _seedFootballMatches() async {
+    final matches = [
+      FootballMatchModel(
+        id: 'match_1',
+        teamA: 'Usha FC Thrissur',
+        teamB: 'FIFA Manjeri',
+        scoreA: 2,
+        scoreB: 3,
+        status: 'Live',
+        matchTime: '8:00 PM',
+        matchDate: 'Tonight',
+        venue: 'Kottakkal Municipal Stadium',
+        tournamentName: 'All India Sevens Kottakkal',
+        timestamp: DateTime.now(),
+        minute: "55'",
+      ),
+      FootballMatchModel(
+        id: 'match_2',
+        teamA: 'Sabas Calicut',
+        teamB: 'Linsha Medicals Mannarkkad',
+        scoreA: 1,
+        scoreB: 1,
+        status: 'Live',
+        matchTime: '9:30 PM',
+        matchDate: 'Tonight',
+        venue: 'Changuvetty Grounds',
+        tournamentName: 'Malabar Sevens Cup',
+        timestamp: DateTime.now().subtract(Duration(minutes: 30)),
+        minute: "12'",
+      ),
+      FootballMatchModel(
+        id: 'match_3',
+        teamA: 'Royal Travels Kozhikode',
+        teamB: 'Gains Kovoor',
+        scoreA: 0,
+        scoreB: 2,
+        status: 'Completed',
+        matchTime: '8:00 PM',
+        matchDate: 'Yesterday',
+        venue: 'Kottakkal Municipal Stadium',
+        tournamentName: 'All India Sevens Kottakkal',
+        timestamp: DateTime.now().subtract(Duration(days: 1)),
+        minute: 'FT',
+      ),
+      FootballMatchModel(
+        id: 'match_4',
+        teamA: 'Black & White Kozhikode',
+        teamB: 'Mediguard Kondotty',
+        scoreA: 0,
+        scoreB: 0,
+        status: 'Upcoming',
+        matchTime: '8:00 PM',
+        matchDate: 'Jul 10',
+        venue: 'Kottakkal Municipal Stadium',
+        tournamentName: 'All India Sevens Kottakkal',
+        timestamp: DateTime.now().add(Duration(days: 3)),
+        minute: '',
+      ),
+    ];
+    for (var match in matches) {
+      await _db.collection('football_matches').doc(match.id).set(match.toMap());
+    }
+  }
+
+  Future<void> postBulletinNotice(BulletinNoticeModel notice) async {
+    await _db.collection('bulletin_notices').doc(notice.id).set(notice.toMap());
+  }
+
+  Stream<List<BulletinNoticeModel>> getBulletinNotices() {
+    return _db.collection('bulletin_notices').snapshots().map((snapshot) {
+      if (snapshot.docs.isEmpty) {
+        _seedBulletinNotices();
+        return [];
+      }
+      final notices = snapshot.docs.map((doc) => BulletinNoticeModel.fromMap(doc.data())).toList();
+      notices.sort((a, b) => b.postedDate.compareTo(a.postedDate));
+      return notices;
+    });
+  }
+
+  Future<void> _seedBulletinNotices() async {
+    final notices = [
+      BulletinNoticeModel(
+        id: 'notice_1',
+        title: 'Water Supply Disruption',
+        description: 'KWA drinking water supply will be partially disrupted tomorrow (July 7) in Changuvetty and Kottakkal Junction area due to pipe maintenance work.',
+        postedBy: 'Municipality Water Dept',
+        postedDate: DateTime.now().subtract(Duration(hours: 3)),
+        category: 'Water/Power',
+      ),
+      BulletinNoticeModel(
+        id: 'notice_2',
+        title: 'Traffic Diversion for Temple Festival',
+        description: 'Expect heavy traffic near Venkata Thevar Temple on Friday evening. Heavy vehicles are advised to take the bypass route via Puttur road.',
+        postedBy: 'Traffic Police Kottakkal',
+        postedDate: DateTime.now().subtract(Duration(hours: 6)),
+        category: 'Traffic',
+      ),
+      BulletinNoticeModel(
+        id: 'notice_3',
+        title: 'Monsoon Dengue Prevention Camp',
+        description: 'Free medical camp and dry-day campaign this Sunday at Panchayat Community Hall. Ayurvedic immunity boosters will be distributed.',
+        postedBy: 'Health Center Kottakkal',
+        postedDate: DateTime.now().subtract(Duration(days: 1)),
+        category: 'Health Alert',
+      ),
+    ];
+    for (var notice in notices) {
+      await _db.collection('bulletin_notices').doc(notice.id).set(notice.toMap());
+    }
   }
 }
 
