@@ -1,11 +1,17 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthService extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _db = FirebaseFirestore.instance;
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    clientId: kIsWeb
+        ? '1065335217306-evhad2gdio1vo2b6ssvdml2h0qdt3s6u.apps.googleusercontent.com'
+        : null,
+  );
 
   User? get currentUser => _auth.currentUser;
 
@@ -14,8 +20,8 @@ class AuthService extends ChangeNotifier {
   // Sign out
   Future<void> signOut() async {
     try {
-      await GoogleSignIn().signOut();
-      await GoogleSignIn().disconnect();
+      await _googleSignIn.signOut();
+      await _googleSignIn.disconnect();
     } catch (e) {
       print("Error signing out/disconnecting Google: $e");
     }
@@ -59,7 +65,7 @@ class AuthService extends ChangeNotifier {
   // Google Sign In
   Future<User?> signInWithGoogle() async {
     try {
-      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       if (googleUser == null) return null; // User canceled
 
       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
