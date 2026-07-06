@@ -324,7 +324,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> with SingleTickerProvid
       {'name': 'Helpline', 'icon': Icons.emergency, 'color': Colors.red[900]},
       {'name': 'Ayurveda\nHub', 'icon': Icons.spa, 'color': const Color(0xFF2E7D32)},
       {'name': 'Football\nBulletin', 'icon': Icons.sports_soccer, 'color': const Color(0xFF1B5E20)},
-      {'name': 'Market\nRates', 'icon': Icons.trending_up, 'color': Colors.orange[850]!},
+      {'name': 'Market\nRates', 'icon': Icons.trending_up, 'color': Colors.orange[800]!},
       {'name': 'Farmers\nBazaar', 'icon': Icons.eco, 'color': Colors.green[800]!},
     ];
 
